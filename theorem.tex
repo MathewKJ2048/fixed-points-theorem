@@ -1,0 +1,606 @@
+\documentclass[11pt]{article}
+\usepackage{fullpage, amsmath, amsfonts}
+\title{Simulating Computers with CTCs}
+\author{Mathew K J}
+
+\begin{document}
+
+    \section{Theorem Statement}
+
+    Consider a directed graph $G = (V,E)$ such that $\forall x: x \in V \rightarrow (\exists! y \in V: (x,y) \in E)$. In other words, each node has an out-degree of exactly 1.
+
+    Let $c(x)$ be the child of $x$. $c$ is well-defined since each node has exactly one child. Let $p(x)=\{y\in V:c(y)=x\}$ be the set of all parents of $x$. Define $c(x, k)$ for all $x \in V$ and $k \in \mathbb{Z}$ as:
+
+    \begin{equation}
+        c(x,k)=
+        \begin{cases}
+            c(c(x),k-1), & \text{if}\ k \in \mathbb{N} \\
+            x, & \text{otherwise}
+        \end{cases}
+    \end{equation}
+
+    $c(x,k)$ is the $k^{th}$-generation descendant of $x$. Define the set of all descendants of $x$ as $d(x)$, where:
+
+    \begin{equation}
+        d(x) = \{y : \exists k\in \mathbb{N}, c(x,k) = y\}
+    \end{equation}
+
+    Let $C$ be the set of all nodes which are in a cycle, ie. nodes which eventually loop back to themselves when the path defined by the outgoing edges is followed. Such nodes will be their own descendants. Thus $C$ is defined as
+
+    \begin{equation}
+        C = \{x : x\in d(x)\}
+    \end{equation}
+
+
+    Define a function $f: V\rightarrow\mathbb{R}$ and a higher order function $s$ as:
+
+    \begin{equation}
+        s(f)=g \Leftrightarrow \forall x \in V: g(x) = \sum_{y \in p(x)} f(y)
+    \end{equation}
+
+
+
+
+    \subsection{Theorem}
+
+    \begin{equation}
+        s(f^*) = f^* \Leftrightarrow (\forall x\in C, \forall y\in d(x), f^*(y) = f^*(x) ) \land (\forall x\in V\setminus C, f^*(x) = 0)
+    \end{equation}
+
+    In other words, $f^*$ is a fixed point of $s$ iff $f^*$ maps all nodes in $C$ to the same number as its descendants and maps all nodes not in $C$ to $0$.
+
+    \section{Proof}
+
+    \subsection{Defining parentage}
+
+    Let $p(x,k)$ be the set of $k^{th}$-generation parents of x, defined for all $x \in V$ and $k \in \mathbb{Z}$
+
+    \begin{equation}
+        p(x,k) = \{y: c(y,k) = x\}
+    \end{equation}
+
+    \subsection{Defining the length of a cycle}
+
+    Define a function $L: C \rightarrow \mathbb{N}$ as:
+
+    \begin{equation}
+        L(x) = \min\{k : c(x,k) = x, k \in \mathbb{N}\}
+    \end{equation}
+
+    $L(x)$ is the length of the cycle of which $x$ is a member. Note that the set $\{k : c(x,k) = x, k \in \mathbb{N}\}$ is nonempty for any $x \in C$, since $x$ is a member of a cycle and therefore there must exist some $k \in \mathbb{N}$ such that $c(x,k) = x$.
+
+    \subsection{Additivity of $c(x,k)$}
+
+    \begin{equation}
+        \forall x \in V, a,b \in \mathbb{Z}: c(x, a+b) = c(c(x,a),b)
+    \end{equation}
+
+    \textbf{Proof:}
+
+    Let $P(a)$ be the statement that $\forall x \in V, b \in \mathbb{Z}:c(x, a+b) = c(c(x,a),b)$.
+
+    Base case: $P(0)$
+
+    \begin{align*}
+        \text{$c(x,0+b)$} &= \text{$c(x,b)$} && \text{since $0+b = b$} \\
+        &= \text{$c(c(x,0),b)$} && \text{using $c(x,0) = x$}
+    \end{align*}
+
+
+    Thus $P(0)$ holds.
+
+    Inductive step: $\forall a \in \mathbb{Z}: P(a) \rightarrow P(a+1)$
+
+    Assume that $\forall b \in \mathbb{Z}:c(x, a+b) = c(c(x,a),b)$ for some $a \in \mathbb{Z}$.
+
+    To prove:  $\forall b \in \mathbb{Z}: c(x, (a+1)+b) = c(c(x,a+1),b)$.
+
+    We have:
+    \begin{align*}
+        \text{$c(x,(a+1)+b)$} &= \text{$c(c(x),a+b)$} && \text{putting $k \leftarrow a+b+1$ in definition of $c(x,k)$} \\
+        &= \text{$c(c(c(x),a),b)$} && \text{from $P(a)$} \\
+        &= \text{$c(c(x,a+1),b)$} && \text{putting $k \leftarrow a+1$ and $x \leftarrow c(x)$ in definition of $c(x,k)$}
+    \end{align*}
+
+    Therefore, by induction, we have shown that $\forall x \in V, a,b \in \mathbb{Z}, c(x, a+b) = c(c(x,a),b)$.
+
+
+
+
+
+    \subsection{Cycles as equivalence classes}
+
+    Define a relation $R$ over $C$ as:
+    \begin{equation}
+        xRy \Leftrightarrow y \in d(x)
+    \end{equation}
+
+    R is reflexive since $\forall x \in C: x\in d(x)$ by the definition of $C$. Thus $\forall x \in C: xRx$.
+
+    To prove that $R$ is transitive, that is $\forall x,y,z \in C: xRy \land yRz \rightarrow xRz$, let $x,y,z$ be arbitrary nodes in $C$ such that $xRy \land yRz$. Let $k_{1}$ and $k_{2}$ be natural numbers such that $c(x,k_{1})=y$ and $c(y,k_{2}=z$. $k_{1}$ and $k_{2}$ must exist since $xRy$ and $yRz$.
+
+    \begin{align*}
+        \text{$c(x,k_{1}+k_{2})$} &= \text{$c(c(x,k_{1}),k_{2})$} && \text{using additivity of $c(x,k)$} \\
+        &= \text{$c(y,k_{2})$} && \text{since $c(x,k_{1})=y$} \\
+        &= \text{$z$} && \text{since $c(y,k_{2})=z$}
+    \end{align*}
+
+    $k_{1}, k_{2} \in \mathbb{N}$ thus $k_{1}+k_{2} \in \mathbb{N}$. Thus $\exists k \in \mathbb{N}: c(x,z) = z$. Thus $xRz$.
+
+    To prove that $R$ is symmetric, that is $\forall x,y \in C: xRy \rightarrow yRx$, let $x,y$ be arbitrary nodes in $C$ such that $xRy$. Define $S_{xy}$ to be $\{k: k \in \mathbb{N}, c(x,k) = y\}$. Let $k_{x} = L(x)$ and $k_{y} = min(S)$, which is well-defined because $S_{xy}$ cannot be $\emptyset$ since $xRy \rightarrow \exists k \in \mathbb{N}: c(x,k) = y$
+
+    claim: $k_{y} \leq k_{x}$
+
+    proof:
+    Assume that $k_{y} > k_{x}$. Let $k_{y} = k_{x} + t$ for some $t \in \mathbb{N}$.
+
+    \begin{align*}
+        \text{$y$} &= \text{$c(x,k_{y})$} && \text{} \\
+        &= \text{$c(x,k_{x}+t)$} && \text{since $k_{x}+t=k_{y}$} \\
+        &= \text{$c(c(x,k_{x}),t)$} && \text{additivity of $c(x,k)$} \\
+        &= \text{$c(x,t)$} && \text{}
+    \end{align*}
+
+    Thus $c(x,t)=y$ where $t\in\mathbb{N}$, which implies that $t\in S_{xy}$. Since $k_{x}\in\mathbb{N}$, $k_{x}>0$. $t=k_{y}-k_{x}$, thus $t<k_{y}$. The existence of such a $t$ contradicts the assumption that $k_{y}$ is the minimum of $S_{xy}$. Thus the assumption that $k_{y}>k_{x}$ is incorrect. Therefore, $k_{y} \leq k_{x}$
+
+    \iffalse
+    c(x,kx) = c(x,(kx-ky)+ky) = c(c(x,ky),kx-ky) = c(y,kx-ky)
+    c(x,kx)=x
+    thus c(y,kx-ky) = x
+
+    Let k0 be some N such that c(y,k0) = y
+    k0 is guaranteed to exist since yed(y)
+    kx-ky>=0
+    kx-ky+k0>0
+    c(y,kx-ky+k0) = c(c(y,k0),kx-ky) = c(y,kx-ky) = x
+    Let k1 = kx-ky+k0
+    k1 e N and c(y,k1)=x
+    thus x e d(y)
+    thus xRy implies yRx
+    \fi
+
+    \begin{align*}
+        \text{$x$} &= \text{$c(x,k_{x})$} && \text{by definition of $k_{x}$} \\
+        &= \text{$c(x,(k_{x}-k_{y})+k_{y})$} && \text{$k_{x}\geq k_{y} \rightarrow (k_{x}-k_{y}) \in \mathbb{W}$} \\
+        &= \text{$c(c(x,k_{y}),k_{x}-k_{y})$} && \text{additivity of $c(x,k)$} \\
+        &= \text{$c(y,k_{x}-k_{y})$} && \text{since $c(x,k_{y})=y$ by definition of $k_{x}$} \\
+        &= \text{$c(c(y,L(y)),k_{x}-k_{y})$} && \text{since $c(y,L(y)=y$ by definition of $L$} \\
+        &= \text{$c(y,k_{x}-k_{y}+L(y))$} && \text{additivity of $c(x,k)$}
+    \end{align*}
+
+    Let $u=k_{x}-k_{y}+L(y)$. Since $k_{x}\geq k_{y}$ and $L(y) \in \mathbb{N}$, $k_{x}-k_{y}+L(y)=u \in \mathbb{N}$. $c(y,u)=x \rightarrow yRx$. Thus $R$ is symmetric.
+
+    Since $R$ is reflexive, symmetric and transitive, it is an equivalence relation.
+
+    \subsection{Lemmas about ring length}
+
+    \begin{equation}
+        \forall x \in C, k \in \mathbb{W}: c(x,kL(x)) = x
+    \end{equation}
+
+    Proof by induction:
+
+    Let $P(k): \forall x \in C: c(x,kL(x)) = x$.
+
+    Base case: $P(0)$
+
+    $c(x,0) = x$ by definition of $c$. Thus $P(0)$ holds.
+
+    Inductive step: $\forall k \in \mathbb{W}: P(k) \rightarrow P(k+1)$
+
+    Assume $P(k)$ holds, then $\forall x \in C: c(x,kL(x))=x$. To prove that $P(k+1)$ follows from $P(k)$:
+
+    \begin{align*}
+        \text{$c(x,(k+1)L(x))$} &= \text{$c(x,kL(x)+L(x))$} && \text{} \\
+        &= \text{$c(c(x,kL(x)),L(x))$} && \text{additivity of $c(x,k)$} \\
+        &= \text{$c(x,L(x))$} && \text{since $P(k)$ implies that $c(x,kL(x))=x$} \\
+        &= \text{$x$} && \text{from the definition of $L(x)$}
+    \end{align*}
+
+    Thus the lemma is proven.
+
+    \begin{equation}
+        \forall x,y \in C: xRy \rightarrow L(y) = L(x)
+    \end{equation}
+
+    Proof:
+
+    Let $L(x)=k$, $c(x,k_{0})=y$ and $c(y,k_{1})=x$ for some $k,k_{0},k_{1} \in \mathbb{N}$.
+
+    \begin{align*}
+        \text{$y$} &= \text{$c(x,k_{0})$} && \text{by definition of $k_{0}$} \\
+        &= \text{$c(c(x,k),k_{0})$} && \text{by definition of $k$, $x=c(x,k)$} \\
+        &= \text{$c(x,k_{0}+k)$} && \text{additivity of $c(x,k)$} \\
+        &= \text{$c(c(x,k_{0}),k)$} && \text{additivity of $c(x,k)$} \\
+        &= \text{$c(y,k)$} && \text{by definition of $k_{0}$, $y=c(x,k_{0})$}
+    \end{align*}
+
+    Thus $c(y,k)=y$. To prove that $k=L(y)$, one must prove that there does not exist any $k^{'} \in \mathbb{N}$ such that $(k^{'}<k) \land (c(y,k^{'})=y)$ (in other words, $k$ is the minimum possible natural number such that $c(y,k)=y$). Let $k^{'}$ be such a natural number.
+
+    \begin{align*}
+        \text{$x$} &= \text{$c(y,k_{1})$} && \text{by definition of $k_{1}$} \\
+        &= \text{$c(c(y,k^{'}),k_{1})$} && \text{since $c(y,k^{'})=y$} \\
+        &= \text{$c(y,k^{'}+k_{1})$} && \text{additivity of $c(x,y)$} \\
+        &= \text{$c(c(y,k_{1}),k^{'})$} && \text{additivity of $c(x,y)$} \\
+        &= \text{$c(x,k^{'})$} && \text{since $x=c(y,k_{1})$}
+    \end{align*}
+
+    $k^{'} \in \mathbb{N} \land k^{'}<k \land c(x,k^{'})=x$. This contradicts the assumption that $L(x)=k$. Since no such $k^{'}$ can exist, the lemma is proven.
+
+    \begin{equation}
+        \forall x \in C, \forall k \in \mathbb{W}: c(x,k)=x \rightarrow k \equiv 0 \mod L(x)
+    \end{equation}
+
+    Proof:
+
+    Let $L(x)=k_{0}$ and $k=mk_{0}+k_{1}$ where $m,k_{1} \in \mathbb{W}$ and $k_{1}<k_{0}$ as per Euclid's division lemma.
+
+    \begin{align*}
+        \text{$x$} &= \text{$c(x,k)$} && \text{by definition of $k$} \\
+        &= \text{$c(x,mk_{0}+k_{1})$} && \text{by definition of $k_{0},k_{1}$} \\
+        &= \text{$c(c(x,mk_{0}),k_{1})$} && \text{additivity of $c(x,k)$} \\
+        &= \text{$c(x,k_{1})$} && \text{using lemma (10)}
+    \end{align*}
+
+    $c(x,k_{1})=x$ and $k_{1}<k_{0}$. If $k_{1} \in \mathbb{N}$, the assumption that $L(x)=k$ is violated. Thus $k_{1} \notin \mathbb{N}$. Thus $k_{1} \in \mathbb{W} \setminus \mathbb{N} = \{0\}$. $k_{1}=0 \rightarrow k=mk_{0} \rightarrow k \equiv 0 \mod k_{0}$. Thus the lemma is proven.
+
+    \subsection{Lemmas about $p(x,k)$}
+
+    If a node is not in any ring, then none of its ancestors can be in any ring. Formally:
+
+    \begin{equation}
+        \forall x \in V: x \notin C \rightarrow (\forall k \in \mathbb{N} : p(x,k) \cap C = \emptyset)
+    \end{equation}
+
+    Proof:
+
+    Assume there exists $x \in V, k \in \mathbb{N}$ such that $x \notin C \land p(x,k) \cap C \not = \emptyset$. Let $y \in p(x,k) \cap C$. Let $c(y,k_{0})=y$ for some $k_{0} \in \mathbb{N}$ (such a $k_{0}$ must exist since $y \in C$).
+
+    \begin{align*}
+        \text{$x$} &= \text{$c(y,k)$} && \text{$y \in p(x,k) \rightarrow c(y,k) = x$} \\
+        &= \text{$c(c(y,k_{0}),k)$} && \text{by definition of $k_{0}$} \\
+        &= \text{$c(y,k_{0}+k)$} && \text{additivity of $c(x,k)$} \\
+        &= \text{$c(c(y,k),k_{0})$} && \text{additivity of $c(x,k)$} \\
+        &= \text{$c(x,k_{0})$} && \text{since $c(y,k) = x$}
+    \end{align*}
+
+    If $x=c(x,k_{0})$ for some $k_{0} \in \mathbb{N}$, then then $x \in C$. This contradicts the assumption that $x \notin C$, thus no such $y$ can exist. Thus the lemma is proven.
+
+    \begin{equation}
+        \forall x \in V,k \in \mathbb{W}: p(x,k) = \emptyset \rightarrow p(x,k+1) = \emptyset
+    \end{equation}
+
+    Proof:
+
+    Assume $\exists x \in V, k \in \mathbb{W}: p(x,k)= \emptyset \land p(x,k+1) \not = \emptyset$. Let $y \in p(x,k+1)$. Let $t=c(y,1)$.
+
+    \begin{align*}
+        \text{$x$} &= \text{$c(y,k+1)$} && \text{$since y \in p(x,k+1)$} \\
+        &= \text{$c(c(y,1),k)$} && \text{additivity of $c(x,k)$} \\
+        &= \text{$c(t,k)$} && \text{by definition of $t$}
+    \end{align*}
+
+    $c(t,k) = x \rightarrow t \in p(x,k) \rightarrow p(x,k) \not = \emptyset$ which contradicts the assumption that $p(x,k) = \emptyset$. Thus the lemma is proven.
+
+    Corollary:
+
+    \begin{equation}
+        \forall x \in V,k \in \mathbb{W}: p(x,k) = \emptyset \rightarrow \forall t \in \mathbb{W}, t>k: p(x,t) = \emptyset
+    \end{equation}
+
+    Proof:
+
+    $p(x,k) = \emptyset \rightarrow p(x,k+1) = \emptyset \rightarrow p(x,k+2) = \emptyset$ and so on.
+
+    If a node is not in a ring, its $i^{th}$ ancestor cannot also be the $j^{th}$ ancestor, provided $i\not = j$. Formally:
+
+    \begin{equation}
+        \forall x \in V, i,j \in \mathbb{W}: (i \not = j \land x \not \in C) \rightarrow p(x,i) \cap p(x,j) \not = \emptyset
+    \end{equation}
+
+    Proof:
+
+    Assume $\exists x \in V, i,j \in \mathbb{W}: x \not \in C \land i\not = j\land p(x,i) \cap p(x,j) \not = \emptyset$. Assume WLOG that $i>j$ and let $i-j=t$ for some $t \in \mathbb{N}$. Let $y \in p(x,i) \cap p(x,j)$.
+
+    \begin{align*}
+        \text{$x$} &= \text{$c(y,i)$} && \text{since $y \in p(x,i)$} \\
+        &= \text{$c(y,j+k)$} && \text{since $i-j=k$} \\
+        &= \text{$c(c(y,j),k)$} && \text{additivity of $c(x,k)$} \\
+        &= \text{$c(x,k)$} && \text{$y \in p(x,j) \rightarrow c(y,j)=x$}
+    \end{align*}
+
+    $(\exists k\in \mathbb{N}: c(x,k)=x) \rightarrow x \in C$. This contradicts the assumption that $x \not \in C$. Thus the lemma is proven.
+
+
+
+    If a node is not in a ring, it has no ancestors at the $(|V|+1)^{th}$ level. Formally:
+
+    \begin{equation}
+        \forall x \in V: x \not \in C \rightarrow p(x,|V|+1) = \emptyset
+    \end{equation}
+
+
+    Proof:
+
+    If $\exists i\in \mathbb{W},i\leq |V|+1: p(x,i)=\emptyset$, then $p(x,|V|+1)=\emptyset$ using corollary (15).
+
+    Assume that $p(x,|V|+1) \not = \emptyset$. Then $\forall i \in \mathbb{N}, i\leq |V|+1: p(x,i) \not = \emptyset$. Define $S$ as:
+
+
+    \begin{equation*}
+        S = \bigcup_{i=1}^{|V|+1}p(x,i)
+    \end{equation*}
+
+    $S$ is made up of $|V|+1$ non-empty sets. By lemma (16), all these sets are disjoint. Thus $|S|\geq|V|+1$. However, $|S|<|V|$ since $S \subseteq V$. Thus the assumption that $p(x,|V|+1) \not = \emptyset$ leads to a contradiction. Thus $p(x,|V|+1) = \emptyset$ and the lemma is proven.
+
+    \begin{equation}
+        \forall x \in C, k \in \mathbb{W}: |p(x,k) \cap C|=1
+    \end{equation}
+
+    Proof:
+
+    Assume that $\exists x \in V,k \in \mathbb{W}: |p(x,k) \cap C|>1$.
+
+
+    \begin{align*}
+        & \text{Let $y_{1},y_{2} \in p(x,k) \cap C: y_{1} \not = y_{2}$} & \text{Such a pair must exist if $|p(x,k) \cap C|>1$} \\
+        & \text{$c(y_{1},k)=x$} & \text{since $y_{1}\in p(x,k)$} \\
+        & \text{$c(y_{2},k)=x$} & \text{since $y_{2} \in p(x,k)$} \\
+        & \text{$k\not = 0$} & \text{$k=0 \rightarrow p(x,k)=\{x\}$} \\
+        & \text{Thus $k \in \mathbb{N}$} & \text{since $k \in \mathbb{W} \land k\not = 0$} \\
+        & \text{The existence of $k \rightarrow y_{1}Rx \land y_{2}Rx$} & \text{since $y_{1},y_{2} \in C$ and by definition of $R$} \\
+        & \text{$L(x)=L(y_{1})=L(y_{2})$} & \text{by lemma (11)} \\
+        & \text{Let $k_{1} \in \mathbb{N}: c(x,k_{1})=y_{1}$} & \text{$k_{1}$ must exist since $xRy_{1}$} \\
+        & \text{Let $k_{2} \in \mathbb{N}: c(x,k_{2})=y_{2}$} & \text{$k_{2}$ must exist since $xRy_{2}$} \\
+        & \text{$c(x,k_{1}+k) = c(c(x,k_{1}),k) = c(y_{1},k) = x$} & \text{additivity of $c(x,k)$} \\
+        & \text{$k_{1}+k \equiv 0 \mod L(x)$} & \text{Using lemma (12)} \\
+        & \text{$c(x,k_{2}+k) = c(c(x,k_{2}),k) = c(y_{2},k) = x$} & \text{additivity of $c(x,k)$} \\
+        & \text{$k_{2}+k \equiv 0 \mod L(x)$} & \text{Using lemma (12)} \\
+        & \text{$k_{2}+k \equiv k_{1}+k \equiv 0 \mod L(x)$} & \text{} \\
+        & \text{$k_{1} \equiv k_{2} \mod L(x)$} & \text{Since $(a+b\equiv a+c \mod n) \rightarrow (a\equiv c \mod n)$} \\
+        & \text{WLOG, Let $k_{1}\geq k_{2}$} & \text{} \\
+        & \text{Let $k_{1} = k_{2} + tL(x)$ for some $t \in \mathbb{W} $} & \text{Since $k_{1} \equiv k_{2} \mod L(x)$}
+    \end{align*}
+
+    \begin{align*}
+        \text{$y_{1}$} &= \text{$c(x,k_{1})$} && \text{By definition of $k_{1}$} \\
+        &= \text{$c(x,k_{2}+tL(x))$} && \text{since $k_{1} = k_{2}+tL(x)$} \\
+        &= \text{$c(c(x,tL(x)),k_{2})$} && \text{additivity of $c(x,k)$} \\
+        &= \text{$c(x,k_{2})$} && \text{lemma (10)} \\
+        &= \text{$y_{2}$} && \text{by definition of $k_{2}$}
+    \end{align*}
+
+    This contradicts the assumption that $y_{1}\not = y_{2}$. Thus $|p(x,k)\cap C| \leq 1$.
+
+    Assume that $\exists x \in C,k \in \mathbb{W}: p(x,k)\cap C = \emptyset$.
+
+    \begin{align*}
+        & \text{Let $k = rL(x)+t$ where $r,t\in \mathbb{W} \land t<L(x)$} & \text{Using Euclid's division lemma} \\
+        & \text{Let $y = c(x,L(x)-t))$} & \text{$y$ must exist since $L(x)-t \in \mathbb{N}$}
+    \end{align*}
+
+    \begin{align*}
+        \text{$c(y,L(x))$} &= \text{$c(c(x,L(x)-t),L(x))$} && \text{by definition of $y$} \\
+        &= \text{$c(x,L(x)-t+L(x)$} && \text{additivity of $c(x,k)$} \\
+        &= \text{$c(x(x,L(x),L(x)-t)$} && \text{additivity of $c(x,k)$} \\
+        &= \text{$c(x,L(x)-t)$} && \text{by definition of $L(x)$, $c(x,L(x))=x$} \\
+        &= \text{$y$} && \text{by definition of $y$}
+    \end{align*}.
+
+    \begin{align*}
+        \text{$c(y,k)$} &= \text{$c(c(x,L(x)-t),rL(x)+t$} && \text{by definition of $y,r,t$} \\
+        &= \text{$c(x,L(x)-t+rL(x)+t)$} && \text{additivity of $c(x,k)$} \\
+        &= \text{$c(x,(r+1)L(x))$} && \text{} \\
+        &= \text{$x$} && \text{lemma (10)}
+    \end{align*}
+
+
+    \begin{align*}
+        & \text{$y \in C$} & \text{since $c(y,L(x))=y \land L(x)\in \mathbb{N}$} \\
+        & \text{$y \in p(x,k)$} & \text{since $c(y,k)=x$} \\
+        & \text{Thus $y \in p(x,k)\cap C$} & \text{}
+    \end{align*}
+
+    This contradicts the assumption that $p(x,k)\cap C = \emptyset$. Thus $|p(x,k)\cap C| \geq 1$.
+
+    $|p(x,k)\cap C| \geq 1 \land |p(x,k)\cap C| \leq 1 \rightarrow |p(x,k)\cap C|=1$. Thus the lemma is proven.
+
+\subsection{Lemmas about $s(f)$:}
+
+For $k\in \mathbb{W}:$, define $s(f,k)$ as the result of applying $s$ $k$ times on $f$. Formally:
+
+\begin{equation}
+    s(f,k)=
+        \begin{cases}
+            s(s(f),k-1), & \text{if}\ k \in \mathbb{N} \\
+            f, & \text{otherwise}
+        \end{cases}
+\end{equation}
+
+\subsubsection{Additivity of $s(f,k)$}
+
+\begin{equation}
+    \forall a,b \in \mathbb{W}: s(f,a+b) = s(s(f,a),b)
+\end{equation}
+
+Proof:
+
+This lemma can be proven by induction in a manner similar to the lemma about the additivity of $c(x,k)$, since the definition of $s(f,k)$ is isomorphic to the definition of $c(x,k)$.
+
+\begin{equation}
+    \forall k \in \mathbb{W}: s(f,k)=g \Leftrightarrow \forall x \in V: g(x) = \sum_{y \in p(x,k)} f(y)
+\end{equation}
+
+Proof by Induction:
+
+Let $P(k)$ be the statement that the lemma hold for that particular $k$. $P(0)$ is trivially true since $\forall x \in V: g(x) = f(x) \Leftrightarrow f=g$ when $s$ is not applied at all. Consider the base case $P(1)$:
+
+\begin{align*}
+& \text{$p(x,1)=p(x)$} & \text{By definition of $p(x,k)$} \\
+& \text{Thus $s(f,1)=s$} & \text{By definition of $s(f,k)$} \\
+& \text{Thus $P(1)$ holds} & \text{}
+\end{align*}
+
+Assume that $P(k)$ holds for some $k\in \mathbb{N}$. Consider $P(k+1)$:
+
+\begin{align*}
+& \text{$s(f,k+1) = s(s(f,k),1)$} & \text{additivity of $s(f,k)$} \\
+& \text{Let $s(f,k) = g$} & \text{} \\
+& \text{Let $s(g,1) = h$} & \text{} \\
+& \text{$s(f,k+1) = s(g,1) = h$} & \text{by defintion of $g,h$} \\
+& \text{$\forall z \in V: h(z) = \sum_{x \in p(z)} g(x)$} & \text{By definition of $s$} \\
+& \text{$\forall x \in V: g(x) = \sum_{y \in p(x,k)} f(y)$} & \text{since $P(k)$ holds} \\
+& \text{$\forall z \in V: h(z) = \sum_{x \in p(z)} \sum_{y \in p(x,k)} f(y)$} & \text{substituting $g(x)$} \\
+& \text{$x \in p(z) \leftrightarrow c(x)=z$} & \text{By definition of $p$} \\
+& \text{$y \in p(x,k) \leftrightarrow c(y,k)=x$} & \text{by definition of $p$} \\
+& \text{$c(y,k+1) = c(c(y,k),1) = c(x,1) = z$} & \text{additivity of $c(x,k)$} \\
+& \text{Thus $x \in p(z) \land y \in p(x,k) \leftrightarrow y \in p(z,k+1)$} & \text{since $c(y,k+1)=z \leftrightarrow y \in p(z,k+1)$} \\
+& \text{Thus $\forall z \in V: h(z) = \sum_{y \in p(z,k+1)} g(x)$} & \text{} \\
+& \text{Thus $P(k) \rightarrow P(k+1)$ and the lemma is proven} & \text{}
+\end{align*}
+
+\begin{equation}
+    s(f^{*}) = f^{*} \leftrightarrow \forall k \in\mathbb{W}: s(f^{*},k) = f^{*}
+\end{equation}
+
+Proof:
+
+Assume that $\forall k \in \mathbb{W}: s(f^{*},k) = f^{*}$
+
+\begin{align*}
+    \text{$f^{*}$} &= \text{$s(f^{*},1)$} && \text{Since $1\in \mathbb{W}$} \\
+    &= \text{$s(f^{*})$} && \text{by definition of $s(f,k)$}
+\end{align*}
+
+Thus $\forall k \in \mathbb{W}: s(f^{*},k) = f^{*} \rightarrow s(f^{*}) = f^{*}$.
+
+
+Assume that $s(f^{*})=f^{*}$. One needs to prove that $\forall k \in \mathbb{W}: s(f^{*},k) = f^{*}$.
+
+Proof by induction:
+
+Let $P(k) \leftrightarrow s(f^{*},k) = f^{*}$. $P(0)$ holds since $s(f^{*},0) = f^{*}$ by definition of $s(f,k)$.
+
+Base case: $P(1)$
+
+\begin{align*}
+    \text{$s(f^{*},1)$} &= \text{$s(f^{*})$} && \text{by definition of $s(f,k)$} \\
+    &= \text{$f^{*}$} && \text{since $s(f^{*})=f^{*}$ is an assumption}
+\end{align*}
+
+Thus $P(1)$ holds. For the inductive step, assume that $\exists k \in \mathbb{N}: P(k)$
+
+\begin{align*}
+    \text{$s(f^{*},k+1)$} &= \text{$s(s(f^{*},k),1)$} && \text{additivity of $s(f,k)$} \\
+    &= \text{$s(f^{*},1)$} && \text{since $P(k)$ holds} \\
+    &= \text{$f^{*}$} && \text{since $P(1)$ holds}
+\end{align*}
+
+Thus $P(k) \rightarrow P(k+1)$ and $s(f^{*}) = f^{*} \rightarrow \forall k \in \mathbb{W}: s(f^{*},k) = f^{*}$.
+
+The logical implication has been proven to hold in both directions, thus the lemma is proven. Formally:
+$(s(f^{*}) = f^{*} \rightarrow \forall k \in \mathbb{W}: s(f^{*},k) = f^{*}) \land (\forall k \in \mathbb{W}: s(f^{*},k) = f^{*} \rightarrow s(f^{*}) = f^{*}) \rightarrow ((s(f^{*}) = f^{*} \leftrightarrow \forall k \in \mathbb{W}: s(f^{*},k) = f^{*}))$
+
+\subsection{Proving the theorem using the lemmas:}
+
+The theorem can be re-written as $\forall f^{*} \in V \times \mathbb{R}: P(f^{*}) \land Q(f^{*}) \leftrightarrow R(f^{*})$ where:
+
+\begin{align*}
+& \text{$Q(f^{*}) \leftrightarrow (\forall x\in C, \forall y\in d(x), f^{*}(y) = f^{*}(x) )$} & \text{nodes in rings are mapped to same value} \\
+& \text{$P(f^{*}) \leftrightarrow (\forall x\in V\setminus C, f^{*}(x) = 0)$} & \text{all nodes not in rings are mapped to $0$} \\
+& \text{$R(f^{*}) \leftrightarrow s(f^{*}) = f^{*}$} & \text{$f^{*}$ is a fixed point of $s$}
+\end{align*}
+
+\subsubsection{Proving that $R\rightarrow P$}
+
+Let $f^{*}$ be a fixed point of $s$.
+
+\begin{align*}
+& \text{$s(f^{*})=f^{*}$} & \text{by definition of fixed point} \\
+& \text{$\forall k \in\mathbb{W}: s(f^{*},k) = f^{*}$} & \text{By lemma (22)} \\
+& \text{$s(f^{*},|V|+1)=f^{*}$} & \text{putting $k\leftarrow |V|+1$} \\
+& \text{Let $x\in V \land x \not \in C$} & \text{} \\
+& \text{Then $p(x,|V|+1) = \emptyset$} & \text{using lemma (17)} \\
+& \text{Let $s(f^{*},|V+1|) = g$} & \text{} \\
+& \text{$g(x) = \sum_{y \in p(x,|V|+1)} f^{*}(y)$} & \text{using lemma (21)} \\
+& \text{$g(x) = \sum_{y \in \emptyset} f^{*}(y) = 0$} & \text{since $p(x,|V|+1) = \emptyset$} \\
+& \text{$f^{*}(x)=0$} & \text{since $f^{*}=g=s(f^{*},|V|+1)$}
+\end{align*}
+
+Thus, if $f^{*}$ is a fixed point of $s$, $\forall x \in V \setminus C: f^{*}(x) = 0$. Thus $\forall f^{*} \in V \times \mathbb{R}: R(f^{*}) \rightarrow P(f^{*})$
+
+
+\subsubsection{Proving that $R\rightarrow Q$}
+
+Let $f^{*}$ be a fixed point of $s$.
+
+\begin{align*}
+& \text{$s(f^{*})=f^{*}$} & \text{by definition of fixed point} \\
+& \text{Let $g_{k} = s(f^{*},k)$} & \text{where $k\in \mathbb{N}$} \\
+& \text{$\forall k \in \mathbb{N}: g_{k} = f^{*}$} & \text{by lemma (22)} \\
+& \text{$\forall k \in \mathbb{N}: g_{k}(x) = \sum_{y \in p(x,k)} f^{*}(y)$} & \text{Using lemma (21)} \\
+& \text{Let $x \in V \cap C$} & \text{} \\
+& \text{Let $y_{k}$ be the sole element of $p(x,k)\cap C$} & \text{Using lemma (18)} \\
+& \text{$\forall k \in \mathbb{N}: g_{k}(x) = \sum_{y \in p(x,k) \setminus C} f^{*}(y) + f^{*}(y_{k})$} & \text{since $p(x,k) = (p(x,k)\setminus C) \cup (p(x,k)\cap C)$} \\
+& \text{$y \in p(x,k)\setminus C \rightarrow y \in V\setminus C \rightarrow f^{*}(y) = 0$} & \text{Using $R\rightarrow P$} \\
+& \text{Thus, $\forall k \in \mathbb{N}: g_{k}(x) = f^{*}(y_{k})$} & \text{since $\sum_{y \in p(x,k) \setminus C} f^{*}(y)= 0$} \\
+& \text{$\forall k \in \mathbb{N}: f^{*}(x) = f^{*}(y_{k})$} & \text{since $\forall k \in \mathbb{W}: f^{*}(x) = g_{k}(x)$} \\
+& \text{$\forall y \in Y(x): f^{*}(x) = f^{*}(y)$} & \text{where $Y(x) = \{y_{k}:k \in \mathbb{N}\}$} \\
+& \text{$\forall y \in d(x): f^{*}(x) = f^{*}(y)$} & \text{since $\forall x \in V \cap C: d(x)=Y(x)$ as proven below}
+\end{align*}
+
+Thus, if $f^{*}$ is a fixed point of $s$, $\forall x \in C: \forall y \in d(x): f^{*}(x) = f^{*}(y)$. Thus $\forall f^{*} \in V \times \mathbb{R}: R(f^{*}) \rightarrow Q(f^{*})$
+
+
+\begin{align*}
+& \text{Let $y\in Y(x)$} & \text{for some $x \in V \cap C$} \\
+& \text{$\exists k \in \mathbb{N}: y \in p(x,k) \cap C$} & \text{by definition of $y_{k}$} \\
+& \text{$\exists k \in \mathbb{N}: c(y,k)=x$} & \text{$y \in p(x,k) \rightarrow x=c(y,k)$} \\
+& \text{Thus $x \in d(y)$} & \text{by definition of $d(x)$} \\
+& \text{$yRx$} & \text{since $y\in C$} \\
+& \text{Thus, $xRy$} & \text{since $R$ is an equivalence relation} \\
+& \text{$y \in d(x)$} & \text{by definition of $R$} \\
+& \text{Thus $Y(x) \subseteq d(x)$} & \text{}
+\end{align*}
+
+\begin{align*}
+& \text{Let $y \in d(x)$} & \text{for some $x \in V \cap C$} \\
+& \text{$\exists k \in \mathbb{N}: c(x,k)=y$} & \text{by definition of $d(x)$} \\
+& \text{$\exists k \in \mathbb{N}: x\in p(y,k)$} & \text{by definition of $p(x,k)$} \\
+& \text{$y \not \in C \rightarrow x \not \in C$} & \text{lemma (13), $x$ is an ancestor of $y$} \\
+& \text{$x \in C$} & \text{since $x \in V \cap C$} \\
+& \text{Thus $y\in C$} & \text{modus tollendo tollens} \\
+& \text{$xRy$} & \text{since $y \in C \land y \in d(x)$} \\
+& \text{Thus $yRx$} & \text{since $R$ is an equivalence relation} \\
+& \text{$\exists k \in \mathbb{N}: c(y,k)=x$} & \text{by definition of $R$} \\
+& \text{$\exists k \in \mathbb{N}: y\in p(x,k)$} & \text{by definition of $p(x,k)$} \\
+& \text{$\exists k \in \mathbb{N}: y\in p(x,k) \cap C$} & \text{since $y \in C$} \\
+& \text{$\exists k \in \mathbb{N}: y = y_{k}$} & \text{by definition of $y_{k}$} \\
+& \text{Thus $y \in Y(x)$} & \text{by definition of $Y(x)$} \\
+& \text{Thus $d(x) \subseteq Y(x)$} & \text{}
+\end{align*}
+
+$d(x) \subseteq Y(x) \land Y(x) \subseteq d(x) \rightarrow d(x)=Y(x)$
+
+\subsubsection{Proving that $P\land Q\rightarrow R$}
+
+Let $f^{*}: V \rightarrow \mathbb{R}$ be a function such that $P(f^{*})\land Q(f^{*})$ and let $s(f^{*}) = g^{*}$. Let $x\in V$ be an arbitrary node.
+
+\begin{align*}
+& \text{$g^{*}(x) = \sum_{y \in p(x)} f^{*}(y)$} & \text{By definition of $f^{*}$} \\
+& \text{$g^{*}(x) = \sum_{y \in p(x)\setminus C} f^{*}(y) + \sum_{y \in p(x)\cap C} f^{*}(y)$} & \text{} \\
+& \text{Let $y_{0}$ be the only element in $p(x)\cap C$} & \text{using lemma (18)} \\
+& \text{$g^{*}(x) = \sum_{y \in p(x)\setminus C} f^{*}(y) + f^{*}(y_{0})$} & \text{} \\
+& \text{$y \in p(x)\setminus C \rightarrow y \not \in C \rightarrow f^{*}(y)=0$} & \text{since $P(f^{*})$ holds} \\
+& \text{$(c(y_{0})=x) \land (y_{0}\in C) \rightarrow y_{0}Rx$} & \text{by definition of $R$} \\
+& \text{Thus $xRy_{0}$} & \text{since $R$ is an equivalence relation} \\
+& \text{$y_{0} \in d(x)$} & \text{by definition of $R$} \\
+& \text{Thus $f^{*}(y_{0}) = f^{*}(x)$} & \text{since $Q(f^{*})$ holds} \\
+& \text{$g^{*}(x) = f^{*}(x)$} & \text{since $f^{*}(y_{0}) = f^{*}(x)$ and $\sum_{y \in p(x)\setminus C} f^{*}(y) = 0$} \\
+& \text{$f^{*} = g^{*} = s(f^{*})$} & \text{since $\forall x \in V: g^{*}(x) = f^{*}(x)$} \\
+& \text{Thus $f^{*}$ is a fixed point of $s$} & \text{}
+\end{align*}
+
+Thus $P(f^{*}) \land Q(f^{*}) \rightarrow R(f^{*})$ for an arbitrary function $f^{*}$.
+
+\end{document}
