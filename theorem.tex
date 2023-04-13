@@ -7,9 +7,9 @@
 
     \section{Theorem Statement}
 
-    Consider a directed graph $G = (V,E)$ such that $\forall x: x \in V \rightarrow (\exists! y \in V: (x,y) \in E)$. In other words, each node has an out-degree of exactly 1.
+    Consider a directed graph $G = (V,E)$ such that each node has an out-degree of exactly 1. Formally, $\forall x: x \in V \rightarrow (\exists! y \in V: (x,y) \in E)$.
 
-    Let $c(x)$ be the child of $x$. $c$ is well-defined since each node has exactly one child. Let $p(x)=\{y\in V:c(y)=x\}$ be the set of all parents of $x$. Define $c(x, k)$ for all $x \in V$ and $k \in \mathbb{Z}$ as:
+    Let $c(x)$ be the child of $x$. $c: V \rightarrow V$ is a well-defined function since each node has exactly one child. Let $p(x)=\{y\in V:c(y)=x\}$ be the set of all parents of $x$. Define $c(x, k)$ for all $x \in V$ and $k \in \mathbb{Z}$ as:
 
     \begin{equation}
         c(x,k)=
@@ -17,18 +17,21 @@
             c(c(x),k-1), & \text{if}\ k \in \mathbb{N} \\
             x, & \text{otherwise}
         \end{cases}
+        \label{define_cxk}
     \end{equation}
 
     $c(x,k)$ is the $k^{th}$-generation descendant of $x$. Define the set of all descendants of $x$ as $d(x)$, where:
 
     \begin{equation}
         d(x) = \{y : \exists k\in \mathbb{N}, c(x,k) = y\}
+        \label{define_d}
     \end{equation}
 
-    Let $C$ be the set of all nodes which are in a cycle, ie. nodes which eventually loop back to themselves when the path defined by the outgoing edges is followed. Such nodes will be their own descendants. Thus $C$ is defined as
+    Let $C$ be the set of all nodes which are in a cycle, i.e. nodes which eventually loop back to themselves when the path defined by the outgoing edges is followed. Such nodes will be their own descendants. Thus $C$ is defined as
 
     \begin{equation}
         C = \{x : x\in d(x)\}
+        \label{define_C}
     \end{equation}
 
 
@@ -36,6 +39,7 @@
 
     \begin{equation}
         s(f)=g \Leftrightarrow \forall x \in V: g(x) = \sum_{y \in p(x)} f(y)
+        \label{define_s}
     \end{equation}
 
 
@@ -45,18 +49,20 @@
 
     \begin{equation}
         s(f^*) = f^* \Leftrightarrow (\forall x\in C, \forall y\in d(x), f^*(y) = f^*(x) ) \land (\forall x\in V\setminus C, f^*(x) = 0)
+        \label{theorem_statement}
     \end{equation}
 
     In other words, $f^*$ is a fixed point of $s$ iff $f^*$ maps all nodes in $C$ to the same number as its descendants and maps all nodes not in $C$ to $0$.
 
     \section{Proof}
 
-    \subsection{Defining parentage}
+    \subsection{Extending $p(x)$}
 
     Let $p(x,k)$ be the set of $k^{th}$-generation parents of x, defined for all $x \in V$ and $k \in \mathbb{Z}$
 
     \begin{equation}
         p(x,k) = \{y: c(y,k) = x\}
+        \label{define_pxk}
     \end{equation}
 
     \subsection{Defining the length of a cycle}
@@ -64,18 +70,20 @@
     Define a function $L: C \rightarrow \mathbb{N}$ as:
 
     \begin{equation}
-        L(x) = \min\{k : c(x,k) = x, k \in \mathbb{N}\}
+        L(x) = \min ( \{k : c(x,k) = x, k \in \mathbb{N}\} )
+        \label{define_Lx}
     \end{equation}
 
-    $L(x)$ is the length of the cycle of which $x$ is a member. Note that the set $\{k : c(x,k) = x, k \in \mathbb{N}\}$ is nonempty for any $x \in C$, since $x$ is a member of a cycle and therefore there must exist some $k \in \mathbb{N}$ such that $c(x,k) = x$.
+    $L(x)$ is the length of the cycle of which $x$ is a member. Note that the set $\{k : c(x,k) = x, k \in \mathbb{N}\}$ is non-empty for all $x \in C$, since $x$ is a member of a cycle and therefore there must exist some $k \in \mathbb{N}$ such that $c(x,k) = x$.
 
     \subsection{Additivity of $c(x,k)$}
 
     \begin{equation}
         \forall x \in V, a,b \in \mathbb{Z}: c(x, a+b) = c(c(x,a),b)
+        \label{additivity_cxk}
     \end{equation}
 
-    \textbf{Proof:}
+    Proof:
 
     Let $P(a)$ be the statement that $\forall x \in V, b \in \mathbb{Z}:c(x, a+b) = c(c(x,a),b)$.
 
@@ -113,6 +121,7 @@
     Define a relation $R$ over $C$ as:
     \begin{equation}
         xRy \Leftrightarrow y \in d(x)
+        \label{define_R}
     \end{equation}
 
     R is reflexive since $\forall x \in C: x\in d(x)$ by the definition of $C$. Thus $\forall x \in C: xRx$.
@@ -143,22 +152,6 @@
 
     Thus $c(x,t)=y$ where $t\in\mathbb{N}$, which implies that $t\in S_{xy}$. Since $k_{x}\in\mathbb{N}$, $k_{x}>0$. $t=k_{y}-k_{x}$, thus $t<k_{y}$. The existence of such a $t$ contradicts the assumption that $k_{y}$ is the minimum of $S_{xy}$. Thus the assumption that $k_{y}>k_{x}$ is incorrect. Therefore, $k_{y} \leq k_{x}$
 
-    \iffalse
-    c(x,kx) = c(x,(kx-ky)+ky) = c(c(x,ky),kx-ky) = c(y,kx-ky)
-    c(x,kx)=x
-    thus c(y,kx-ky) = x
-
-    Let k0 be some N such that c(y,k0) = y
-    k0 is guaranteed to exist since yed(y)
-    kx-ky>=0
-    kx-ky+k0>0
-    c(y,kx-ky+k0) = c(c(y,k0),kx-ky) = c(y,kx-ky) = x
-    Let k1 = kx-ky+k0
-    k1 e N and c(y,k1)=x
-    thus x e d(y)
-    thus xRy implies yRx
-    \fi
-
     \begin{align*}
         \text{$x$} &= \text{$c(x,k_{x})$} && \text{by definition of $k_{x}$} \\
         &= \text{$c(x,(k_{x}-k_{y})+k_{y})$} && \text{$k_{x}\geq k_{y} \rightarrow (k_{x}-k_{y}) \in \mathbb{W}$} \\
@@ -176,6 +169,7 @@
 
     \begin{equation}
         \forall x \in C, k \in \mathbb{W}: c(x,kL(x)) = x
+        \label{whole_walks_around_cycle}
     \end{equation}
 
     Proof by induction:
@@ -201,6 +195,7 @@
 
     \begin{equation}
         \forall x,y \in C: xRy \rightarrow L(y) = L(x)
+        \label{cycle_length_is_same}
     \end{equation}
 
     Proof:
@@ -229,6 +224,7 @@
 
     \begin{equation}
         \forall x \in C, \forall k \in \mathbb{W}: c(x,k)=x \rightarrow k \equiv 0 \mod L(x)
+        \label{start_is_end_implies_whole_length}
     \end{equation}
 
     Proof:
@@ -239,7 +235,7 @@
         \text{$x$} &= \text{$c(x,k)$} && \text{by definition of $k$} \\
         &= \text{$c(x,mk_{0}+k_{1})$} && \text{by definition of $k_{0},k_{1}$} \\
         &= \text{$c(c(x,mk_{0}),k_{1})$} && \text{additivity of $c(x,k)$} \\
-        &= \text{$c(x,k_{1})$} && \text{using lemma (10)}
+        &= \text{$c(x,k_{1})$} && \text{using lemma \ref{whole_walks_around_cycle}}
     \end{align*}
 
     $c(x,k_{1})=x$ and $k_{1}<k_{0}$. If $k_{1} \in \mathbb{N}$, the assumption that $L(x)=k$ is violated. Thus $k_{1} \notin \mathbb{N}$. Thus $k_{1} \in \mathbb{W} \setminus \mathbb{N} = \{0\}$. $k_{1}=0 \rightarrow k=mk_{0} \rightarrow k \equiv 0 \mod k_{0}$. Thus the lemma is proven.
@@ -250,6 +246,7 @@
 
     \begin{equation}
         \forall x \in V: x \notin C \rightarrow (\forall k \in \mathbb{N} : p(x,k) \cap C = \emptyset)
+        \label{not_ring_then_parent_not_in_ring}
     \end{equation}
 
     Proof:
@@ -268,6 +265,7 @@
 
     \begin{equation}
         \forall x \in V,k \in \mathbb{W}: p(x,k) = \emptyset \rightarrow p(x,k+1) = \emptyset
+        \label{no_parents_k_k+1}
     \end{equation}
 
     Proof:
@@ -286,6 +284,7 @@
 
     \begin{equation}
         \forall x \in V,k \in \mathbb{W}: p(x,k) = \emptyset \rightarrow \forall t \in \mathbb{W}, t>k: p(x,t) = \emptyset
+        \label{no_parents_k_allk}
     \end{equation}
 
     Proof:
@@ -296,6 +295,7 @@
 
     \begin{equation}
         \forall x \in V, i,j \in \mathbb{W}: (i \not = j \land x \not \in C) \rightarrow p(x,i) \cap p(x,j) \not = \emptyset
+        \label{disjoint_ancestors}
     \end{equation}
 
     Proof:
@@ -317,6 +317,7 @@
 
     \begin{equation}
         \forall x \in V: x \not \in C \rightarrow p(x,|V|+1) = \emptyset
+        \label{no_ancestors_V+1}
     \end{equation}
 
 
@@ -331,10 +332,11 @@
         S = \bigcup_{i=1}^{|V|+1}p(x,i)
     \end{equation*}
 
-    $S$ is made up of $|V|+1$ non-empty sets. By lemma (16), all these sets are disjoint. Thus $|S|\geq|V|+1$. However, $|S|<|V|$ since $S \subseteq V$. Thus the assumption that $p(x,|V|+1) \not = \emptyset$ leads to a contradiction. Thus $p(x,|V|+1) = \emptyset$ and the lemma is proven.
+    $S$ is made up of $|V|+1$ non-empty sets. By lemma (\ref{disjoint_ancestors}), all these sets are disjoint. Thus $|S|\geq|V|+1$. However, $|S|<|V|$ since $S \subseteq V$. Thus the assumption that $p(x,|V|+1) \not = \emptyset$ leads to a contradiction. Thus $p(x,|V|+1) = \emptyset$ and the lemma is proven.
 
     \begin{equation}
         \forall x \in C, k \in \mathbb{W}: |p(x,k) \cap C|=1
+        \label{unique_parent_in_ring}
     \end{equation}
 
     Proof:
@@ -349,13 +351,13 @@
         & \text{$k\not = 0$} & \text{$k=0 \rightarrow p(x,k)=\{x\}$} \\
         & \text{Thus $k \in \mathbb{N}$} & \text{since $k \in \mathbb{W} \land k\not = 0$} \\
         & \text{The existence of $k \rightarrow y_{1}Rx \land y_{2}Rx$} & \text{since $y_{1},y_{2} \in C$ and by definition of $R$} \\
-        & \text{$L(x)=L(y_{1})=L(y_{2})$} & \text{by lemma (11)} \\
+        & \text{$L(x)=L(y_{1})=L(y_{2})$} & \text{by lemma (\ref{cycle_length_is_same})} \\
         & \text{Let $k_{1} \in \mathbb{N}: c(x,k_{1})=y_{1}$} & \text{$k_{1}$ must exist since $xRy_{1}$} \\
         & \text{Let $k_{2} \in \mathbb{N}: c(x,k_{2})=y_{2}$} & \text{$k_{2}$ must exist since $xRy_{2}$} \\
         & \text{$c(x,k_{1}+k) = c(c(x,k_{1}),k) = c(y_{1},k) = x$} & \text{additivity of $c(x,k)$} \\
-        & \text{$k_{1}+k \equiv 0 \mod L(x)$} & \text{Using lemma (12)} \\
+        & \text{$k_{1}+k \equiv 0 \mod L(x)$} & \text{Using lemma (\ref{start_is_end_implies_whole_length})} \\
         & \text{$c(x,k_{2}+k) = c(c(x,k_{2}),k) = c(y_{2},k) = x$} & \text{additivity of $c(x,k)$} \\
-        & \text{$k_{2}+k \equiv 0 \mod L(x)$} & \text{Using lemma (12)} \\
+        & \text{$k_{2}+k \equiv 0 \mod L(x)$} & \text{Using lemma (\ref{start_is_end_implies_whole_length})} \\
         & \text{$k_{2}+k \equiv k_{1}+k \equiv 0 \mod L(x)$} & \text{} \\
         & \text{$k_{1} \equiv k_{2} \mod L(x)$} & \text{Since $(a+b\equiv a+c \mod n) \rightarrow (a\equiv c \mod n)$} \\
         & \text{WLOG, Let $k_{1}\geq k_{2}$} & \text{} \\
@@ -366,7 +368,7 @@
         \text{$y_{1}$} &= \text{$c(x,k_{1})$} && \text{By definition of $k_{1}$} \\
         &= \text{$c(x,k_{2}+tL(x))$} && \text{since $k_{1} = k_{2}+tL(x)$} \\
         &= \text{$c(c(x,tL(x)),k_{2})$} && \text{additivity of $c(x,k)$} \\
-        &= \text{$c(x,k_{2})$} && \text{lemma (10)} \\
+        &= \text{$c(x,k_{2})$} && \text{lemma (\ref{whole_walks_around_cycle})} \\
         &= \text{$y_{2}$} && \text{by definition of $k_{2}$}
     \end{align*}
 
@@ -391,7 +393,7 @@
         \text{$c(y,k)$} &= \text{$c(c(x,L(x)-t),rL(x)+t$} && \text{by definition of $y,r,t$} \\
         &= \text{$c(x,L(x)-t+rL(x)+t)$} && \text{additivity of $c(x,k)$} \\
         &= \text{$c(x,(r+1)L(x))$} && \text{} \\
-        &= \text{$x$} && \text{lemma (10)}
+        &= \text{$x$} && \text{lemma (\ref{whole_walks_around_cycle})}
     \end{align*}
 
 
@@ -415,12 +417,14 @@ For $k\in \mathbb{W}:$, define $s(f,k)$ as the result of applying $s$ $k$ times 
             s(s(f),k-1), & \text{if}\ k \in \mathbb{N} \\
             f, & \text{otherwise}
         \end{cases}
+    \label{define_sfk}
 \end{equation}
 
 \subsubsection{Additivity of $s(f,k)$}
 
 \begin{equation}
     \forall a,b \in \mathbb{W}: s(f,a+b) = s(s(f,a),b)
+    \label{additivity_sfk}
 \end{equation}
 
 Proof:
@@ -429,6 +433,7 @@ This lemma can be proven by induction in a manner similar to the lemma about the
 
 \begin{equation}
     \forall k \in \mathbb{W}: s(f,k)=g \Leftrightarrow \forall x \in V: g(x) = \sum_{y \in p(x,k)} f(y)
+    \label{alternate_sfk}
 \end{equation}
 
 Proof by Induction:
@@ -461,6 +466,7 @@ Assume that $P(k)$ holds for some $k\in \mathbb{N}$. Consider $P(k+1)$:
 
 \begin{equation}
     s(f^{*}) = f^{*} \leftrightarrow \forall k \in\mathbb{W}: s(f^{*},k) = f^{*}
+    \label{extend_fixed_point}
 \end{equation}
 
 Proof:
@@ -517,12 +523,12 @@ Let $f^{*}$ be a fixed point of $s$.
 
 \begin{align*}
 & \text{$s(f^{*})=f^{*}$} & \text{by definition of fixed point} \\
-& \text{$\forall k \in\mathbb{W}: s(f^{*},k) = f^{*}$} & \text{By lemma (22)} \\
+& \text{$\forall k \in\mathbb{W}: s(f^{*},k) = f^{*}$} & \text{By lemma (\ref{extend_fixed_point})} \\
 & \text{$s(f^{*},|V|+1)=f^{*}$} & \text{putting $k\leftarrow |V|+1$} \\
 & \text{Let $x\in V \land x \not \in C$} & \text{} \\
-& \text{Then $p(x,|V|+1) = \emptyset$} & \text{using lemma (17)} \\
+& \text{Then $p(x,|V|+1) = \emptyset$} & \text{using lemma (\ref{no_ancestors_V+1})} \\
 & \text{Let $s(f^{*},|V+1|) = g$} & \text{} \\
-& \text{$g(x) = \sum_{y \in p(x,|V|+1)} f^{*}(y)$} & \text{using lemma (21)} \\
+& \text{$g(x) = \sum_{y \in p(x,|V|+1)} f^{*}(y)$} & \text{using lemma (\ref{alternate_sfk})} \\
 & \text{$g(x) = \sum_{y \in \emptyset} f^{*}(y) = 0$} & \text{since $p(x,|V|+1) = \emptyset$} \\
 & \text{$f^{*}(x)=0$} & \text{since $f^{*}=g=s(f^{*},|V|+1)$}
 \end{align*}
@@ -537,10 +543,10 @@ Let $f^{*}$ be a fixed point of $s$.
 \begin{align*}
 & \text{$s(f^{*})=f^{*}$} & \text{by definition of fixed point} \\
 & \text{Let $g_{k} = s(f^{*},k)$} & \text{where $k\in \mathbb{N}$} \\
-& \text{$\forall k \in \mathbb{N}: g_{k} = f^{*}$} & \text{by lemma (22)} \\
-& \text{$\forall k \in \mathbb{N}: g_{k}(x) = \sum_{y \in p(x,k)} f^{*}(y)$} & \text{Using lemma (21)} \\
+& \text{$\forall k \in \mathbb{N}: g_{k} = f^{*}$} & \text{by lemma (\ref{extend_fixed_point})} \\
+& \text{$\forall k \in \mathbb{N}: g_{k}(x) = \sum_{y \in p(x,k)} f^{*}(y)$} & \text{Using lemma (\ref{alternate_sfk})} \\
 & \text{Let $x \in V \cap C$} & \text{} \\
-& \text{Let $y_{k}$ be the sole element of $p(x,k)\cap C$} & \text{Using lemma (18)} \\
+& \text{Let $y_{k}$ be the sole element of $p(x,k)\cap C$} & \text{Using lemma (\ref{unique_parent_in_ring})} \\
 & \text{$\forall k \in \mathbb{N}: g_{k}(x) = \sum_{y \in p(x,k) \setminus C} f^{*}(y) + f^{*}(y_{k})$} & \text{since $p(x,k) = (p(x,k)\setminus C) \cup (p(x,k)\cap C)$} \\
 & \text{$y \in p(x,k)\setminus C \rightarrow y \in V\setminus C \rightarrow f^{*}(y) = 0$} & \text{Using $R\rightarrow P$} \\
 & \text{Thus, $\forall k \in \mathbb{N}: g_{k}(x) = f^{*}(y_{k})$} & \text{since $\sum_{y \in p(x,k) \setminus C} f^{*}(y)= 0$} \\
@@ -567,7 +573,7 @@ Thus, if $f^{*}$ is a fixed point of $s$, $\forall x \in C: \forall y \in d(x): 
 & \text{Let $y \in d(x)$} & \text{for some $x \in V \cap C$} \\
 & \text{$\exists k \in \mathbb{N}: c(x,k)=y$} & \text{by definition of $d(x)$} \\
 & \text{$\exists k \in \mathbb{N}: x\in p(y,k)$} & \text{by definition of $p(x,k)$} \\
-& \text{$y \not \in C \rightarrow x \not \in C$} & \text{lemma (13), $x$ is an ancestor of $y$} \\
+& \text{$y \not \in C \rightarrow x \not \in C$} & \text{lemma (\ref{not_ring_then_parent_not_in_ring}), $x$ is an ancestor of $y$} \\
 & \text{$x \in C$} & \text{since $x \in V \cap C$} \\
 & \text{Thus $y\in C$} & \text{modus tollendo tollens} \\
 & \text{$xRy$} & \text{since $y \in C \land y \in d(x)$} \\
@@ -589,7 +595,7 @@ Let $f^{*}: V \rightarrow \mathbb{R}$ be a function such that $P(f^{*})\land Q(f
 \begin{align*}
 & \text{$g^{*}(x) = \sum_{y \in p(x)} f^{*}(y)$} & \text{By definition of $f^{*}$} \\
 & \text{$g^{*}(x) = \sum_{y \in p(x)\setminus C} f^{*}(y) + \sum_{y \in p(x)\cap C} f^{*}(y)$} & \text{} \\
-& \text{Let $y_{0}$ be the only element in $p(x)\cap C$} & \text{using lemma (18)} \\
+& \text{Let $y_{0}$ be the only element in $p(x)\cap C$} & \text{using lemma (\ref{unique_parent_in_ring})} \\
 & \text{$g^{*}(x) = \sum_{y \in p(x)\setminus C} f^{*}(y) + f^{*}(y_{0})$} & \text{} \\
 & \text{$y \in p(x)\setminus C \rightarrow y \not \in C \rightarrow f^{*}(y)=0$} & \text{since $P(f^{*})$ holds} \\
 & \text{$(c(y_{0})=x) \land (y_{0}\in C) \rightarrow y_{0}Rx$} & \text{by definition of $R$} \\
